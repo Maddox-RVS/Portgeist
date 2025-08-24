@@ -98,6 +98,7 @@ public class NetworkScanner {
             System.out.printf(Colors.BLUE + "%-10s %-20s %-10s%n" + Colors.RESET, "Port", "Service", "Status");
 
             ExecutorService executor = protocol == Protocol.TCP ? Executors.newFixedThreadPool(serviceRecords.size()) : Executors.newFixedThreadPool(UDP_THREAD_POOL_SIZE);
+            
             for (ServiceRecord serviceRecord : serviceRecords) {
                 executor.submit(() -> {
                     boolean isOpen = protocol == Protocol.TCP ? connectTCP(target, serviceRecord.port(), timeout)
@@ -138,6 +139,7 @@ public class NetworkScanner {
             System.out.printf(Colors.BLUE + "%-10s %-20s %-10s%n" + Colors.RESET, "Port", "Service", "Status");
 
             ExecutorService executor = protocol == Protocol.TCP ? Executors.newFixedThreadPool(serviceRecords.size()) : Executors.newFixedThreadPool(UDP_THREAD_POOL_SIZE);
+            
             for (ServiceRecord serviceRecord : serviceRecords) {
                 executor.submit(() -> {
                     boolean isOpen = protocol == Protocol.TCP ? connectTCP(target, serviceRecord.port(), timeout) 
@@ -166,7 +168,7 @@ public class NetworkScanner {
         return scanResults;
     }
 
-    public static List<PortScanResult> deepPortScanTCP(String target, int timeout, Protocol protocol) {
+    public static List<PortScanResult> deepPortScan(String target, int timeout, Protocol protocol) {
         List<PortScanResult> scanResults = new ArrayList<>();
 
         System.out.printf(Colors.BLUE + "%-10s %-20s %-10s%n" + Colors.RESET, "Port", "Service", "Status");
