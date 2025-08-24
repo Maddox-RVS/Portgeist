@@ -14,6 +14,8 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.sound.sampled.Port;
 
@@ -21,6 +23,8 @@ import util.Colors;
 import util.TermInstructs;
 
 public class NetworkScanner {
+    private static final int MAX_PORTS = 65535;
+
     private record ServiceRecord(String serviceName, int port, double frequency, String comment) {}
 
     private record PortScanResult(ServiceRecord serviceRecord, boolean open) {}
@@ -51,8 +55,54 @@ public class NetworkScanner {
         return new ServiceRecord[0]; // Placeholder
     }
 
-    public static void quickPortScanTCP() {
-        // Implement TCP port scanning logic here
+    public static void quickPortScanTCP(String target, int timeout) {
+        List<PortScanResult> scanResults = new ArrayList<>();
+
+        try {
+            Spinner spinner = new Spinner("Loading nmap-services data");
+            spinner.start();
+
+            List<ServiceRecord> serviceRecords = getNmapServicesTCP();
+
+            spinner.stop();
+
+            serviceRecords.sort((a, b) -> Double.compare(b.frequency(), a.frequency()));
+            serviceRecords = serviceRecords.subList(0, Math.min(1000, serviceRecords.size()));
+
+            System.out.printf(Colors.BLUE + "%-10s %-20s %-10s%n" + Colors.RESET, "Port", "Service", "Status");
+
+            List<Thread> threads = new ArrayList<>();
+
+            for (ServiceRecord serviceRecord : serviceRecords) {
+                Thread thread = new Thread() {
+                    @Override
+                    public void run() {
+                        boolean isOpen = connectTCP(target, serviceRecord.port(), timeout);
+                        scanResults.add(new PortScanResult(serviceRecord, isOpen));
+
+                        System.out.printf("%-10d %-20s %-10s%n",
+                            serviceRecord.port(),
+                            serviceRecord.serviceName(),
+                            isOpen ? Colors.GREEN + "Open" + Colors.RESET : Colors.RED + "Closed" + Colors.RESET);
+                    }
+                };
+
+                thread.start();
+                threads.add(thread);
+            }
+
+            for (Thread thread : threads) {
+                try {
+                    thread.join();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        } catch (IOException e) {
+            System.out.println(Colors.BG_RED + Colors.WHITE + "ERROR"
+                    + Colors.RESET + Colors.RED + "An issue occurred while reading in nmap-services data.");
+        }
+
     }
 
     public static void quickPortScanUDP() {
@@ -70,36 +120,34 @@ public class NetworkScanner {
 
             spinner.stop();
 
-            ManualProgressBar progressBar = new ManualProgressBar("SCANNING", serviceRecords.size(), 30);
-            progressBar.setShowPercent(true);
-
             System.out.printf(Colors.BLUE + "%-10s %-20s %-10s%n" + Colors.RESET, "Port", "Service", "Status");
 
+            List<Thread> threads = new ArrayList<>();
+
             for (ServiceRecord serviceRecord : serviceRecords) {
-                try (Socket socket = new Socket()) {
-                    socket.connect(new InetSocketAddress(target, serviceRecord.port()), timeout);
-                    scanResults.add(new PortScanResult(serviceRecord, true));
+                Thread thread = new Thread() {
+                    @Override
+                    public void run() {
+                        boolean isOpen = connectTCP(target, serviceRecord.port(), timeout);
+                        scanResults.add(new PortScanResult(serviceRecord, isOpen));
 
-                    TermInstructs.ERASE_LINE();
-                    TermInstructs.MOVE_CURSOR_TO_LINE_BEG();
-                    System.out.printf("%-10d %-20s %-10s%n",
-                        serviceRecord.port(),
-                        serviceRecord.serviceName(),
-                        Colors.GREEN + "Open" + Colors.RESET);
-                } catch (IOException e) {
-                    scanResults.add(new PortScanResult(serviceRecord, false));
+                        System.out.printf("%-10d %-20s %-10s%n",
+                            serviceRecord.port(),
+                            serviceRecord.serviceName(),
+                            isOpen ? Colors.GREEN + "Open" + Colors.RESET : Colors.RED + "Closed" + Colors.RESET);
+                    }
+                };
 
-                    TermInstructs.ERASE_LINE();
-                    TermInstructs.MOVE_CURSOR_TO_LINE_BEG();
-                    System.out.printf("%-10d %-20s %-10s%n",
-                        serviceRecord.port(),
-                        serviceRecord.serviceName(),
-                        Colors.RED + "Closed" + Colors.RESET);
+                thread.start();
+                threads.add(thread);
+            }
 
+            for (Thread thread : threads) {
+                try {
+                    thread.join();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
                 }
-
-                progressBar.increment();
-                System.out.print(progressBar.getDisplay());
             }
         } catch (IOException e) {
             System.out.println(Colors.BG_RED + Colors.WHITE + "ERROR" 
@@ -107,7 +155,6 @@ public class NetworkScanner {
             return new ArrayList<>();
         }
 
-        printPortScanResults(scanResults);
         return scanResults;
     }
 
@@ -116,8 +163,42 @@ public class NetworkScanner {
         return new ArrayList<>();
     }
 
-    public static void deepPortScanTCP() {
-        // Implement detailed TCP port scanning logic here
+    public static List<PortScanResult> deepPortScanTCP(String target, int timeout) {
+        List<PortScanResult> scanResults = new ArrayList<>();
+
+        System.out.printf(Colors.BLUE + "%-10s %-20s %-10s%n" + Colors.RESET, "Port", "Service", "Status");
+
+        List<Thread> threads = new ArrayList<>();
+
+        for (int i = 0; i <= MAX_PORTS; i++) {
+            final int port = i;
+            Thread thread = new Thread() {
+                @Override
+                public void run() {
+                    boolean isOpen = connectTCP(target, port, timeout);
+                    ServiceRecord serviceRecord = new ServiceRecord("Unknown", port, 0.0, "");
+                    scanResults.add(new PortScanResult(serviceRecord, isOpen));
+
+                    System.out.printf("%-10d %-20s %-10s%n",
+                        port,
+                        serviceRecord.serviceName(),
+                        isOpen ? Colors.GREEN + "Open" + Colors.RESET : Colors.RED + "Closed" + Colors.RESET);
+                }
+            };
+
+            thread.start();
+            threads.add(thread);
+        }
+
+        for (Thread thread : threads) {
+            try {
+                thread.join();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+
+        return scanResults;
     }
 
     public static void deepPortScanUDP() {
