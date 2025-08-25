@@ -4,15 +4,16 @@ import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import util.loading.ManualProgressBar;
 import util.loading.Spinner;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.ConnectException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.PortUnreachableException;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
@@ -21,11 +22,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-
-import javax.sound.sampled.Port;
-
 import util.Colors;
-import util.TermInstructs;
 
 public class NetworkScanner {
     private static final int MAX_PORTS = 65535;
@@ -37,9 +34,35 @@ public class NetworkScanner {
         UDP
     }
 
+    public enum PortStatus {
+        OPEN,
+        CLOSED,
+        FILTERED,
+        FILTERED_OR_CLOSED;
+
+        @Override
+        public String toString() {
+            return switch (this) {
+                case OPEN -> "Open";
+                case CLOSED -> "Closed";
+                case FILTERED -> "Filtered";
+                case FILTERED_OR_CLOSED -> "Filtered/Closed";
+            };
+        }
+
+        public String toStringColored() {
+            return switch (this) {
+                case OPEN -> Colors.GREEN + "Open" + Colors.RESET;
+                case CLOSED -> Colors.RED + "Closed" + Colors.RESET;
+                case FILTERED -> Colors.BRIGHT_BLUE + "Filtered" + Colors.RESET;
+                case FILTERED_OR_CLOSED -> Colors.BRIGHT_BLUE + "Filtered" + Colors.RESET + "/" + Colors.RED + "Closed" + Colors.RESET;
+            };
+        }
+    }
+
     private record ServiceRecord(String serviceName, int port, double frequency, String comment) {}
 
-    private record PortScanResult(ServiceRecord serviceRecord, boolean open) {}
+    private record PortScanResult(ServiceRecord serviceRecord, PortStatus status, Protocol protocol) {}
 
     private static List<ServiceRecord> getNmapServicesTCP() throws IOException, StreamReadException, DatabindException {
         List<ServiceRecord> serviceRecords = new ArrayList<>();
@@ -95,20 +118,19 @@ public class NetworkScanner {
             serviceRecords.sort((a, b) -> Double.compare(b.frequency(), a.frequency()));
             serviceRecords = serviceRecords.subList(0, Math.min(1000, serviceRecords.size()));
 
-            System.out.printf(Colors.BLUE + "%-10s %-20s %-10s%n" + Colors.RESET, "Port", "Service", "Status");
-
             ExecutorService executor = protocol == Protocol.TCP ? Executors.newFixedThreadPool(serviceRecords.size()) : Executors.newFixedThreadPool(UDP_THREAD_POOL_SIZE);
             
             for (ServiceRecord serviceRecord : serviceRecords) {
                 executor.submit(() -> {
-                    boolean isOpen = protocol == Protocol.TCP ? connectTCP(target, serviceRecord.port(), timeout)
+                    PortStatus status = protocol == Protocol.TCP ? connectTCP(target, serviceRecord.port(), timeout)
                                                                 : connectUDP(target, serviceRecord.port(), timeout);
-                    scanResults.add(new PortScanResult(serviceRecord, isOpen));
+                    scanResults.add(new PortScanResult(serviceRecord, status, protocol));
 
-                    System.out.printf("%-10d %-20s %-10s%n",
+                    System.out.printf("%-10d %-20s %-5s %-10s%n",
                         serviceRecord.port(),
                         serviceRecord.serviceName(),
-                        isOpen ? Colors.GREEN + "Open" + Colors.RESET : Colors.RED + "Closed" + Colors.RESET);
+                        protocol == Protocol.TCP ? "TCP" : "UDP",
+                        status.toStringColored());
                 });
             }
             executor.shutdown();
@@ -136,20 +158,19 @@ public class NetworkScanner {
 
             spinner.stop();
 
-            System.out.printf(Colors.BLUE + "%-10s %-20s %-10s%n" + Colors.RESET, "Port", "Service", "Status");
-
             ExecutorService executor = protocol == Protocol.TCP ? Executors.newFixedThreadPool(serviceRecords.size()) : Executors.newFixedThreadPool(UDP_THREAD_POOL_SIZE);
             
             for (ServiceRecord serviceRecord : serviceRecords) {
                 executor.submit(() -> {
-                    boolean isOpen = protocol == Protocol.TCP ? connectTCP(target, serviceRecord.port(), timeout) 
+                    PortStatus status = protocol == Protocol.TCP ? connectTCP(target, serviceRecord.port(), timeout)
                                                                 : connectUDP(target, serviceRecord.port(), timeout);
-                    scanResults.add(new PortScanResult(serviceRecord, isOpen));
+                    scanResults.add(new PortScanResult(serviceRecord, status, protocol));
 
-                    System.out.printf("%-10d %-20s %-10s%n",
+                    System.out.printf("%-10d %-20s %-5s %-10s%n",
                         serviceRecord.port(),
                         serviceRecord.serviceName(),
-                        isOpen ? Colors.GREEN + "Open" + Colors.RESET : Colors.RED + "Closed" + Colors.RESET);
+                        protocol == Protocol.TCP ? "TCP" : "UDP",
+                        status.toStringColored());
                 });
             }
             executor.shutdown();
@@ -171,21 +192,20 @@ public class NetworkScanner {
     public static List<PortScanResult> deepPortScan(String target, int timeout, Protocol protocol) {
         List<PortScanResult> scanResults = new ArrayList<>();
 
-        System.out.printf(Colors.BLUE + "%-10s %-20s %-10s%n" + Colors.RESET, "Port", "Service", "Status");
-
         ExecutorService executor = protocol == Protocol.TCP ? Executors.newFixedThreadPool(MAX_PORTS) : Executors.newFixedThreadPool(UDP_THREAD_POOL_SIZE);
 
         for (int i = 0; i <= MAX_PORTS; i++) {
             final int port = i;
             executor.submit(() -> {
-                boolean isOpen = protocol == Protocol.TCP ? connectTCP(target, port, timeout) : connectUDP(target, port, timeout);
+                PortStatus status = protocol == Protocol.TCP ? connectTCP(target, port, timeout) : connectUDP(target, port, timeout);
                 ServiceRecord serviceRecord = new ServiceRecord("Unknown", port, 0.0, "");
-                scanResults.add(new PortScanResult(serviceRecord, isOpen));
+                scanResults.add(new PortScanResult(serviceRecord, status, protocol));
 
-                System.out.printf("%-10d %-20s %-10s%n",
+                System.out.printf("%-10d %-20s %-5s %-10s%n",
                     port,
                     serviceRecord.serviceName(),
-                    isOpen ? Colors.GREEN + "Open" + Colors.RESET : Colors.RED + "Closed" + Colors.RESET);
+                    protocol == Protocol.TCP ? "TCP" : "UDP",
+                    status.toStringColored());
             });
         }
 
@@ -200,18 +220,21 @@ public class NetworkScanner {
         return scanResults;
     }
 
-    public static boolean connectTCP(String target, int port, int timeout) {
+    public static PortStatus connectTCP(String target, int port, int timeout) {
         try (Socket socket = new Socket()) {
             socket.connect(new InetSocketAddress(target, port), timeout);
-            return true;
+            return PortStatus.OPEN;
+        } catch (SocketTimeoutException e) {
+            return PortStatus.FILTERED;
+        } catch (ConnectException e) {
+            return PortStatus.CLOSED;
         } catch (IOException e) {
-            return false;
+            return PortStatus.FILTERED;
         }
     }
 
-    public static boolean connectUDP(String target, int port, int timeout) {
-        try {
-            DatagramSocket socket = new DatagramSocket();
+    public static PortStatus connectUDP(String target, int port, int timeout) {
+        try (DatagramSocket socket = new DatagramSocket()) {
             socket.setSoTimeout(timeout);
 
             byte[] sendData = "ping".getBytes();
@@ -224,28 +247,32 @@ public class NetworkScanner {
 
             try {
                 socket.receive(receivePacket);
-                return true;
+                return PortStatus.OPEN;
             } catch (SocketTimeoutException e) {
-                return false;
+                return PortStatus.FILTERED_OR_CLOSED;
             }
+        } catch (PortUnreachableException e) {
+            return PortStatus.CLOSED;
         } catch (IOException e) {
             System.out.println(Colors.BG_RED + Colors.WHITE + "ERROR" 
                                 + Colors.RESET + Colors.RED + " An issue occurred while connecting to the target." + Colors.RESET);                                   
-            return false;
+            return PortStatus.FILTERED;
         }
     }
 
+    public static void printScanResultsHeader() {
+        System.out.printf(Colors.BLUE + "%-10s %-20s %-10s %-10s%n" + Colors.RESET, "Port", "Service", "Protocol", "Status");
+    }
+
     public static void printPortScanResults(List<PortScanResult> portScanResults) {
-        System.out.printf(Colors.BLUE + "%-10s %-20s %-10s %-10s %-30s%n" + Colors.RESET, "Port", "Service", "Status", "Frequency", "Comment");
-        
+        printScanResultsHeader();
+
         for (PortScanResult result : portScanResults) {
-            String status = result.open() ? Colors.GREEN + "Open" + Colors.RESET : Colors.RED + "Closed" + Colors.RESET;
-            System.out.printf("%-10d %-20s %-10s %-10.2f %-30s%n", 
-                              result.serviceRecord().port(), 
-                              result.serviceRecord().serviceName(), 
-                              status, 
-                              result.serviceRecord().frequency(), 
-                              result.serviceRecord().comment());
+            System.out.printf("%-10d %-20s %-10s %-10s%n",
+              result.serviceRecord().port(),
+              result.serviceRecord().serviceName(),
+              result.protocol().toString(),
+              result.status().toStringColored());
         }
     }
 }
