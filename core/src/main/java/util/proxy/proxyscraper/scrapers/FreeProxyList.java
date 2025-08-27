@@ -14,7 +14,6 @@ import util.proxy.proxyscraper.ProxyLists;
 import util.proxy.proxyscraper.ScraperInterface;
 
 public class FreeProxyList implements ScraperInterface {
-
     @Override
     public List<ProxyData> scrapeProxies(WebDriver driver) {
         List<ProxyData> proxies = new ArrayList<>();

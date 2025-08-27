@@ -1,6 +1,7 @@
 package networkscanner;
 
 import util.proxy.ProxyData;
+import util.proxy.ProxyFilter;
 import util.proxy.proxyscraper.ProxyScraper;
 
 import java.util.List;
@@ -16,9 +17,12 @@ public class Main {
         //     5000, 
         //     NetworkScanner.Protocol.TCP);
 
+        ProxyData proxy = new ProxyData("194.152.44.171", 80, "Unknown");
+        boolean supportsTCP = ProxyFilter.proxySupportsTCP(proxy, 15000);
+        System.out.println("Proxy supports TCP: " + supportsTCP);
+
         List<ProxyData> proxyList = ProxyScraper.scrapeProxies();
-        for (ProxyData proxy : proxyList) {
-            System.out.println("Found proxy: " + proxy);
-        }
+        List<ProxyData> filteredProxies = ProxyFilter.filterProxies(proxyList);
+        System.out.println("Found " + filteredProxies.size() + " working proxies.");
     }
 }

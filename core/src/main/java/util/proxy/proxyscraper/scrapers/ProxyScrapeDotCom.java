@@ -18,14 +18,12 @@ import util.proxy.proxyscraper.ProxyLists;
 import util.proxy.proxyscraper.ScraperInterface;
 
 public class ProxyScrapeDotCom implements ScraperInterface {
-
     @Override
     public List<ProxyData> scrapeProxies(WebDriver driver) {
         List<ProxyData> proxies = new ArrayList<>();
 
         try {
             driver.get(ProxyLists.PROXY_SCRAPE_DOT_COM);
-            // Thread.sleep(60000);
 
             WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
 

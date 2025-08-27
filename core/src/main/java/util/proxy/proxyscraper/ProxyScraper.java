@@ -4,6 +4,8 @@ import util.selector.Inputer;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,6 +15,7 @@ import util.loading.Spinner;
 import util.proxy.ProxyData;
 import util.proxy.proxyscraper.scrapers.FreeProxyList;
 import util.proxy.proxyscraper.scrapers.GeoNode;
+import util.proxy.proxyscraper.scrapers.Proxifly;
 import util.proxy.proxyscraper.scrapers.ProxyNova;
 import util.proxy.proxyscraper.scrapers.ProxyScrapeDotCom;
 
@@ -85,9 +88,15 @@ public class ProxyScraper {
         ProxyScrapeDotCom proxyScrapeDotCom = new ProxyScrapeDotCom();
         proxies.addAll(proxyScrapeDotCom.scrapeProxies(driver));
 
+        Proxifly proxifly = new Proxifly();
+        proxies.addAll(proxifly.scrapeProxies(driver));
+
         spinner.stop();
 
         driver.quit();
+
+        System.out.println(Colors.BLUE + "Scraped " + Colors.GREEN + proxies.size() + Colors.BLUE + " proxies." + Colors.RESET);
+
         return proxies;
     }
 }
