@@ -12,9 +12,7 @@ public class Inputer {
                 String response = scanner.nextLine().trim().toLowerCase();
     
                 if (!response.equals("y") && !response.equals("n")) {
-                    TermInstructs.MOVE_CURSOR_UP(1);
-                    TermInstructs.ERASE_LINE();
-                    TermInstructs.MOVE_CURSOR_TO_LINE_BEG();
+                    System.out.println(Colors.RED + "Invalid input. Please enter 'y' or 'n'." + Colors.RESET);
                     continue;
                 }
     
