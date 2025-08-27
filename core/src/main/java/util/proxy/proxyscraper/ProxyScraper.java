@@ -1,18 +1,30 @@
 package util.proxy.proxyscraper;
 
 import util.selector.Inputer;
+
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import util.Colors;
 import util.Tor;
 import util.loading.Spinner;
 import util.proxy.ProxyData;
+import util.proxy.proxyscraper.scrapers.FreeProxyList;
+import util.proxy.proxyscraper.scrapers.GeoNode;
 import util.proxy.proxyscraper.scrapers.ProxyNova;
+import util.proxy.proxyscraper.scrapers.ProxyScrapeDotCom;
 
 import org.openqa.selenium.Proxy;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.support.Color;
+
+import com.fasterxml.jackson.core.exc.StreamWriteException;
+import com.fasterxml.jackson.databind.DatabindException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
 
@@ -36,7 +48,7 @@ public class ProxyScraper {
         ChromeOptions options = new ChromeOptions();
         options.setProxy(proxy);
         options.addArguments("--ignore-certificate-errors");
-        options.addArguments("--headless");
+        // options.addArguments("--headless");
         WebDriver driver = new ChromeDriver(options);
 
         spinner.stop();
@@ -58,8 +70,22 @@ public class ProxyScraper {
             if (!continueWithoutTor) return proxies;
         }
 
+        spinner = new Spinner("Scraping proxies");
+        spinner.start();
+
         ProxyNova proxyNova = new ProxyNova();
         proxies.addAll(proxyNova.scrapeProxies(driver));
+
+        GeoNode geoNode = new GeoNode();
+        proxies.addAll(geoNode.scrapeProxies(driver));
+
+        FreeProxyList freeProxyList = new FreeProxyList();
+        proxies.addAll(freeProxyList.scrapeProxies(driver));
+
+        ProxyScrapeDotCom proxyScrapeDotCom = new ProxyScrapeDotCom();
+        proxies.addAll(proxyScrapeDotCom.scrapeProxies(driver));
+
+        spinner.stop();
 
         driver.quit();
         return proxies;
