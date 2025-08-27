@@ -48,7 +48,7 @@ public class ProxyScraper {
         ChromeOptions options = new ChromeOptions();
         options.setProxy(proxy);
         options.addArguments("--ignore-certificate-errors");
-        // options.addArguments("--headless");
+        options.addArguments("--headless");
         WebDriver driver = new ChromeDriver(options);
 
         spinner.stop();
