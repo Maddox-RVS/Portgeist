@@ -18,6 +18,8 @@ import util.OsUtils.OperatingSystem;
 import util.loading.Spinner;
 
 public class Tor {
+    public static boolean isEnabled = false;
+
     private boolean isTorSupported() {
         OperatingSystem os = OsUtils.getOS();
         return os != OperatingSystem.UNKNOWN;
@@ -126,6 +128,7 @@ public class Tor {
 
             spinner.stop();
 
+            isEnabled = true;
             return torProcess;
 
         } catch (IllegalArgumentException | 

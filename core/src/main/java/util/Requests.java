@@ -8,6 +8,11 @@ import java.net.http.HttpResponse;
 
 public class Requests {
     public static String get(String url) throws IOException, InterruptedException {
+        if (Tor.isEnabled) {
+            System.setProperty("socksProxyHost", "127.0.0.1");
+            System.setProperty("socksProxyPort", "9050");
+        }
+
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
