@@ -21,7 +21,7 @@ import util.proxy.proxyscraper.ScraperInterface;
 
 public class GeoNode implements ScraperInterface {
     @Override
-    public List<ProxyData> scrapeProxies(WebDriver driver) {
+    public List<ProxyData> scrapeProxies(WebDriver driver, boolean debug) {
         List<ProxyData> proxies = new ArrayList<>();
 
         try {
@@ -41,9 +41,12 @@ public class GeoNode implements ScraperInterface {
                 proxies.add(new ProxyData(ip, port, country));
             }
         } catch (IOException | InterruptedException e) {
-            TermInstructs.ERASE_LINE();
-            TermInstructs.MOVE_CURSOR_TO_LINE_BEG();
-            System.out.println(Colors.BG_RED + "Error" + Colors.RESET + Colors.RED + " Issue fetching proxies from Geonode." + Colors.RESET);
+            if (debug) {
+                TermInstructs.ERASE_LINE();
+                TermInstructs.MOVE_CURSOR_TO_LINE_BEG();
+                System.out.println(Colors.BG_RED + "Error" + Colors.RESET + Colors.RED + " Issue fetching proxies from Geonode." + Colors.RESET);
+                e.printStackTrace();
+            }
         }
 
         return proxies;

@@ -7,5 +7,5 @@ import org.openqa.selenium.WebDriver;
 import util.proxy.ProxyData;
 
 public interface ScraperInterface {
-    public List<ProxyData> scrapeProxies(WebDriver driver);
+    public List<ProxyData> scrapeProxies(WebDriver driver, boolean debug);
 } 

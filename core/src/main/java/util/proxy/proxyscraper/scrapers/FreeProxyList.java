@@ -15,7 +15,7 @@ import util.proxy.proxyscraper.ScraperInterface;
 
 public class FreeProxyList implements ScraperInterface {
     @Override
-    public List<ProxyData> scrapeProxies(WebDriver driver) {
+    public List<ProxyData> scrapeProxies(WebDriver driver, boolean debug) {
         List<ProxyData> proxies = new ArrayList<>();
 
         try {
@@ -33,12 +33,13 @@ public class FreeProxyList implements ScraperInterface {
                 if (anonymity.equals("elite proxy") || anonymity.equals("anonymous"))
                     proxies.add(new ProxyData(ip, Integer.parseInt(port), country));
             }
-
-            driver.quit();
         } catch (Exception e) {
-            TermInstructs.ERASE_LINE();
-            TermInstructs.MOVE_CURSOR_TO_LINE_BEG();
-            System.out.println(Colors.BG_RED + "Error" + Colors.RESET + Colors.RED + " Issue fetching proxies from Free Proxy List." + Colors.RESET);
+            if (debug) {
+                TermInstructs.ERASE_LINE();
+                TermInstructs.MOVE_CURSOR_TO_LINE_BEG();
+                System.out.println(Colors.BG_RED + "Error" + Colors.RESET + Colors.RED + " Issue fetching proxies from Free Proxy List." + Colors.RESET);
+                e.printStackTrace();
+            }
         }
 
 

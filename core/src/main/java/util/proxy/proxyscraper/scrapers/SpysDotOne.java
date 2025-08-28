@@ -3,17 +3,17 @@ package util.proxy.proxyscraper.scrapers;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+
 import util.Colors;
 import util.TermInstructs;
 import util.proxy.ProxyData;
 import util.proxy.proxyscraper.ProxyLists;
 import util.proxy.proxyscraper.ScraperInterface;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-
-public class ProxyNova implements ScraperInterface {    
+public class SpysDotOne implements ScraperInterface {
     @Override
     public List<ProxyData> scrapeProxies(WebDriver driver, boolean debug) {
         List<ProxyData> proxies = new ArrayList<>();
@@ -38,10 +38,9 @@ public class ProxyNova implements ScraperInterface {
                 TermInstructs.ERASE_LINE();
                 TermInstructs.MOVE_CURSOR_TO_LINE_BEG();
                 System.out.println(Colors.BG_RED + "Error" + Colors.RESET + Colors.RED + " Issue fetching proxies from ProxyNova." + Colors.RESET);
-                e.printStackTrace();
             }
         }
-
+        
         return proxies;
     }
 }

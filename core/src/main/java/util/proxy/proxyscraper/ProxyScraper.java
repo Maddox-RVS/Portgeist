@@ -13,8 +13,10 @@ import util.Colors;
 import util.Tor;
 import util.loading.Spinner;
 import util.proxy.ProxyData;
+import util.proxy.proxyscraper.scrapers.ErinDedeoglu;
 import util.proxy.proxyscraper.scrapers.FreeProxyList;
 import util.proxy.proxyscraper.scrapers.GeoNode;
+import util.proxy.proxyscraper.scrapers.Monosans;
 import util.proxy.proxyscraper.scrapers.Proxifly;
 import util.proxy.proxyscraper.scrapers.ProxyNova;
 import util.proxy.proxyscraper.scrapers.ProxyScrapeDotCom;
@@ -77,19 +79,25 @@ public class ProxyScraper {
         spinner.start();
 
         ProxyNova proxyNova = new ProxyNova();
-        proxies.addAll(proxyNova.scrapeProxies(driver));
+        proxies.addAll(proxyNova.scrapeProxies(driver, false));
 
         GeoNode geoNode = new GeoNode();
-        proxies.addAll(geoNode.scrapeProxies(driver));
+        proxies.addAll(geoNode.scrapeProxies(driver, false));
 
         FreeProxyList freeProxyList = new FreeProxyList();
-        proxies.addAll(freeProxyList.scrapeProxies(driver));
+        proxies.addAll(freeProxyList.scrapeProxies(driver, false));
 
         ProxyScrapeDotCom proxyScrapeDotCom = new ProxyScrapeDotCom();
-        proxies.addAll(proxyScrapeDotCom.scrapeProxies(driver));
+        proxies.addAll(proxyScrapeDotCom.scrapeProxies(driver, false));
 
         Proxifly proxifly = new Proxifly();
-        proxies.addAll(proxifly.scrapeProxies(driver));
+        proxies.addAll(proxifly.scrapeProxies(driver, false));
+
+        Monosans monosans = new Monosans();
+        proxies.addAll(monosans.scrapeProxies(driver, false));
+
+        ErinDedeoglu erinDedeoglu = new ErinDedeoglu();
+        proxies.addAll(erinDedeoglu.scrapeProxies(driver, true));
 
         spinner.stop();
 
