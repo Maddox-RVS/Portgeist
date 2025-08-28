@@ -16,6 +16,7 @@ public class ManualProgressBar {
         this.barWidth = barWidth;
         this.loadingMessage = loadingMessage;
         this.showPercent = false;
+        this.cancelled = false;
     }
 
     public void setShowPercent(boolean showPercent) {
@@ -35,7 +36,11 @@ public class ManualProgressBar {
     }
 
     public void increment() {
-        currentStep++;
+        if (currentStep < totalSteps) currentStep++;
+    }
+
+    public boolean isDone() {
+        return currentStep >= totalSteps;
     }
 
     public String getDisplay() {
@@ -53,11 +58,13 @@ public class ManualProgressBar {
         for (int i = 0; i < barWidth - progress; i++) {
             sb.append("-");
         }
-        sb.append("> " + loadingMessage);
+        sb.append("> ");
 
         if (showPercent) {
-            sb.append(" ").append((int) (percent * 100)).append("%");
+            sb.append((int) (percent * 100)).append("%");
         }
+
+        sb.append(" ").append(loadingMessage);
 
         if (cancelled) {
             sb.append(Colors.RED + " [Cancelled]" + Colors.RESET);

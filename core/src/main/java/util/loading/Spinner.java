@@ -78,7 +78,7 @@ public class Spinner {
             }
             TermInstructs.ERASE_LINE();
             TermInstructs.MOVE_CURSOR_TO_LINE_BEG();
-            System.out.print(loadingMessage + completionMessage + "\n");
+            System.out.println(loadingMessage + completionMessage);
         }
     }
 }
