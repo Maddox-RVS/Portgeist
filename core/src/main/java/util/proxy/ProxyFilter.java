@@ -20,6 +20,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import util.loading.AutoProgressBar;
+import util.loading.ManualProgressBar;
 import util.loading.Spinner;
 
 import java.net.Proxy;
@@ -40,43 +42,38 @@ public class ProxyFilter {
         }
     }
 
-    public static boolean proxySupportsHttpTCP(ProxyData proxyData, int timeout) {
-        try {
-            // yeah idk man, eisther i cant get this working, or the http proxies i scraped are dead proxies
-            return false; // placeholder
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
     public static boolean proxySupportsTCP(ProxyData proxyData, int timeout) {
-        return proxySupportsSocksTCP(proxyData, timeout)
-            || proxySupportsHttpTCP(proxyData, timeout);
+        return proxySupportsSocksTCP(proxyData, timeout);
     }
 
     public static List<ProxyData> filterProxies(List<ProxyData> proxies) {
         List<ProxyData> filteredProxies = new ArrayList<>();
 
-        Spinner spinner = new Spinner("Filtering proxies");
-        spinner.start();
+        AutoProgressBar progressBar = new AutoProgressBar("Filtering Proxies: ", proxies.size(), 20);
+        progressBar.setShowPercent(true);
+        progressBar.start();
 
-        ExecutorService executor = Executors.newFixedThreadPool(proxies.size());
+        ExecutorService executor = Executors.newFixedThreadPool(Math.min(proxies.size(), 5000));
         for (ProxyData proxy : proxies) {
             executor.submit(() -> {
+                progressBar.setLoadingMessage("Filtering Proxies, Location[" + proxy.getCountry() + "]" + " Ip[" + proxy.getIp() + "]");
                 if (proxySupportsTCP(proxy, 5000))
                     filteredProxies.add(proxy);
+                progressBar.increment();
             });
         }
 
-        executor.shutdown();
 
+        executor.shutdown();
+        
         try {
             executor.awaitTermination(WAIT_DAYS, TimeUnit.DAYS);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
-        spinner.stop();
+        progressBar.setLoadingMessage("Filtering Complete.");
+        progressBar.stop();
 
         return filteredProxies;
     }
