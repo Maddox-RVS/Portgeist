@@ -22,7 +22,7 @@ public class Monosans implements ScraperInterface {
         List<ProxyData> proxies = new ArrayList<>();
         
         try {
-            String jsonData = Requests.get(ProxyLists.MONOSANS);
+            String jsonData = Requests.get(ProxyLists.MONOSANS, 10000);
             ObjectMapper mapper = new ObjectMapper();
             List<Map<String, Object>> data = mapper.readValue(jsonData, List.class);
             for (Map<String, Object> entry : data) {

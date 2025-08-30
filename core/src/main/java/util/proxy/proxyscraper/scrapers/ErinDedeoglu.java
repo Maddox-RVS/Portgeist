@@ -20,8 +20,8 @@ public class ErinDedeoglu implements ScraperInterface {
         List<ProxyData> proxies = new ArrayList<>();
 
         try {
-            String socks5list = Requests.get(ProxyLists.ERCIN_DEDEOGLU.SOCKS5).strip();
-            String socks4list = Requests.get(ProxyLists.ERCIN_DEDEOGLU.SOCKS4).strip();
+            String socks5list = Requests.get(ProxyLists.ERCIN_DEDEOGLU.SOCKS5, 10000).strip();
+            String socks4list = Requests.get(ProxyLists.ERCIN_DEDEOGLU.SOCKS4, 10000).strip();
 
             String[] socks5arr = socks5list.split("\n");
             String[] socks4arr = socks4list.split("\n");

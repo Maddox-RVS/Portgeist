@@ -25,7 +25,7 @@ public class GeoNode implements ScraperInterface {
         List<ProxyData> proxies = new ArrayList<>();
 
         try {
-            String proxyJson = Requests.get(ProxyLists.GEONODE);
+            String proxyJson = Requests.get(ProxyLists.GEONODE, 10000);
             ObjectMapper mapper = new ObjectMapper();
             Map<String, List<Map<String, Object>>> data = mapper.readValue(proxyJson, Map.class);
 

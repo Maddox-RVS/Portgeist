@@ -22,7 +22,7 @@ public class Proxifly implements ScraperInterface {
         List<ProxyData> proxies = new ArrayList<>();
         
         try {
-            String jsonData = Requests.get(ProxyLists.PROXIFLY);
+            String jsonData = Requests.get(ProxyLists.PROXIFLY, 10000);
             ObjectMapper mapper = new ObjectMapper();
             List<Map<String, Object>> proxyListData = mapper.readValue(jsonData, List.class);
             for (Map<String, Object> proxyData : proxyListData) {
