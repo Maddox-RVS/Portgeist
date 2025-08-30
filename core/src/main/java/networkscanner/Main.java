@@ -1,8 +1,11 @@
 package networkscanner;
 
+import util.Requests;
+import util.Tor;
 import util.loading.AutoProgressBar;
 import util.proxy.ProxyData;
 import util.proxy.ProxyFilter;
+import util.proxy.ProxyData.Anonymity;
 import util.proxy.proxyscraper.ProxyScraper;
 
 import java.util.List;
@@ -20,10 +23,6 @@ public class Main {
         //     "scanme.nmap.org", 
         //     5000, 
         //     NetworkScanner.Protocol.TCP);
-
-        // ProxyData proxy = new ProxyData("194.152.44.171", 80, "Unknown");
-        // boolean supportsTCP = ProxyFilter.proxySupportsTCP(proxy, 15000);
-        // System.out.println("Proxy supports TCP: " + supportsTCP);
 
         List<ProxyData> proxyList = ProxyScraper.scrapeProxies();
         List<ProxyData> filteredProxies = ProxyFilter.filterProxies(proxyList);
