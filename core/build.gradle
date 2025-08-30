@@ -29,6 +29,7 @@ dependencies {
     implementation 'io.github.bonigarcia:webdrivermanager:5.7.0'
     implementation 'org.apache.commons:commons-compress:1.26.1'
     implementation 'org.slf4j:slf4j-nop:2.0.12'
+    implementation 'com.squareup.okhttp3:okhttp:4.12.0'
 }
 
 // Apply a specific Java toolchain to ease working on different environments.
