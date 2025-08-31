@@ -16,6 +16,7 @@ import util.proxy.ProxyData;
 import util.proxy.proxyscraper.scrapers.ErinDedeoglu;
 import util.proxy.proxyscraper.scrapers.FreeProxyList;
 import util.proxy.proxyscraper.scrapers.GeoNode;
+import util.proxy.proxyscraper.scrapers.JetKai;
 import util.proxy.proxyscraper.scrapers.Monosans;
 import util.proxy.proxyscraper.scrapers.Proxifly;
 import util.proxy.proxyscraper.scrapers.ProxyNova;
@@ -97,7 +98,10 @@ public class ProxyScraper {
         proxies.addAll(monosans.scrapeProxies(driver, false));
 
         ErinDedeoglu erinDedeoglu = new ErinDedeoglu();
-        proxies.addAll(erinDedeoglu.scrapeProxies(driver, true));
+        proxies.addAll(erinDedeoglu.scrapeProxies(driver, false));
+
+        JetKai jetKai = new JetKai();
+        proxies.addAll(jetKai.scrapeProxies(driver, true));
 
         spinner.stop();
 

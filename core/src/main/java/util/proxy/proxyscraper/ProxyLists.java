@@ -7,6 +7,7 @@ public class ProxyLists {
     public static final String PROXY_SCRAPE_DOT_COM = "https://proxyscrape.com/free-proxy-list";
     public static final String PROXIFLY = "https://cdn.jsdelivr.net/gh/proxifly/free-proxy-list@main/proxies/all/data.json";
     public static final String MONOSANS = "https://raw.githubusercontent.com/monosans/proxy-list/refs/heads/main/proxies_pretty.json";
+    public static final String JETKAI = "https://raw.githubusercontent.com/jetkai/proxy-list/main/online-proxies/json/proxies-basic.json";
 
     public static final class ERCIN_DEDEOGLU {
         public static final String SOCKS5 = "https://raw.githubusercontent.com/ErcinDedeoglu/proxies/main/proxies/socks5.txt";
