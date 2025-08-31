@@ -21,6 +21,7 @@ import util.proxy.proxyscraper.scrapers.Monosans;
 import util.proxy.proxyscraper.scrapers.Proxifly;
 import util.proxy.proxyscraper.scrapers.ProxyNova;
 import util.proxy.proxyscraper.scrapers.ProxyScrapeDotCom;
+import util.proxy.proxyscraper.scrapers.Zaeem;
 
 import org.openqa.selenium.Proxy;
 import org.openqa.selenium.WebDriver;
@@ -71,7 +72,7 @@ public class ProxyScraper {
             System.out.println("TOR connection established successfully.");
         } else {
             System.out.println("Failed to establish TOR connection.");
-            boolean continueWithoutTor = Inputer.askYesOrNo("Would you like to continue scraping proxy list from the web without a tor connection?" +
+            boolean continueWithoutTor = Inputer.askYesOrNo("Would you like to continue scraping proxy lists from the web without a tor connection?" +
                             " Note, your IP address may be exposed to the proxy list sites that are scraped.");
             if (!continueWithoutTor) return proxies;
         }
@@ -101,7 +102,10 @@ public class ProxyScraper {
         proxies.addAll(erinDedeoglu.scrapeProxies(driver, false));
 
         JetKai jetKai = new JetKai();
-        proxies.addAll(jetKai.scrapeProxies(driver, true));
+        proxies.addAll(jetKai.scrapeProxies(driver, false));
+
+        Zaeem zaeem = new Zaeem();
+        proxies.addAll(zaeem.scrapeProxies(driver, false));
 
         spinner.stop();
 
