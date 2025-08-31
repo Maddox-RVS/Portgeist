@@ -8,6 +8,7 @@ import util.proxy.ProxyFilter;
 import util.proxy.ProxyData.Anonymity;
 import util.proxy.proxyscraper.ProxyScraper;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -25,7 +26,7 @@ public class Main {
         //     NetworkScanner.Protocol.TCP);
 
         List<ProxyData> proxyList = ProxyScraper.scrapeProxies();
-        List<ProxyData> filteredProxies = ProxyFilter.filterProxies(proxyList);
+        List<ProxyData> filteredProxies = proxyList.size() > 0 ? ProxyFilter.filterProxies(proxyList) : new ArrayList<>();
         System.out.println("Found " + filteredProxies.size() + " working proxies.");
     }
 }
