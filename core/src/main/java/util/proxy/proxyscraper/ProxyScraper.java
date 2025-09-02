@@ -80,26 +80,26 @@ public class ProxyScraper {
         spinner = new Spinner("Scraping proxies");
         spinner.start();
 
-        // ProxyNova proxyNova = new ProxyNova();
-        // proxies.addAll(proxyNova.scrapeProxies(driver, false));
+        ProxyNova proxyNova = new ProxyNova();
+        proxies.addAll(proxyNova.scrapeProxies(driver, false));
 
-        // GeoNode geoNode = new GeoNode();
-        // proxies.addAll(geoNode.scrapeProxies(driver, false));
+        GeoNode geoNode = new GeoNode();
+        proxies.addAll(geoNode.scrapeProxies(driver, false));
 
-        // FreeProxyList freeProxyList = new FreeProxyList();
-        // proxies.addAll(freeProxyList.scrapeProxies(driver, false));
+        FreeProxyList freeProxyList = new FreeProxyList();
+        proxies.addAll(freeProxyList.scrapeProxies(driver, false));
 
-        // ProxyScrapeDotCom proxyScrapeDotCom = new ProxyScrapeDotCom();
-        // proxies.addAll(proxyScrapeDotCom.scrapeProxies(driver, false));
+        ProxyScrapeDotCom proxyScrapeDotCom = new ProxyScrapeDotCom();
+        proxies.addAll(proxyScrapeDotCom.scrapeProxies(driver, false));
 
         Proxifly proxifly = new Proxifly();
         proxies.addAll(proxifly.scrapeProxies(driver, false));
 
-        // Monosans monosans = new Monosans();
-        // proxies.addAll(monosans.scrapeProxies(driver, false));
+        Monosans monosans = new Monosans();
+        proxies.addAll(monosans.scrapeProxies(driver, false));
 
-        // ErinDedeoglu erinDedeoglu = new ErinDedeoglu();
-        // proxies.addAll(erinDedeoglu.scrapeProxies(driver, false));
+        ErinDedeoglu erinDedeoglu = new ErinDedeoglu();
+        proxies.addAll(erinDedeoglu.scrapeProxies(driver, false));
 
         JetKai jetKai = new JetKai();
         proxies.addAll(jetKai.scrapeProxies(driver, false));
