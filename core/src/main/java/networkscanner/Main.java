@@ -27,6 +27,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class Main {
     public static void writeProxyJson(List<ProxyData> proxies) {
+        //TODO: Fix saving logic
+
         Scanner in = new Scanner(System.in);
 
         File saveDirectory = new File("");
