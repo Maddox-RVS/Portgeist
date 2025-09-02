@@ -135,11 +135,11 @@ public class ProxyFilter {
         ExecutorService executor = Executors.newFixedThreadPool(Math.min(unprocessedProxies.size(), 5000));
         for (ProxyData proxy : unprocessedProxies) {
             executor.submit(() -> {
-                progressBar.setLoadingMessage("Filtering Proxies, Location[" + proxy.getCountry() + "]" + " Ip[" + proxy.getIp() + "]");
                 if (isProxyValid.apply(proxy)) {
                     proxy.setAnonymity(Anonymity.ELITE);
                     filteredProxies.add(proxy);
                 }
+                progressBar.setLoadingMessage("Filtering Proxies, Location[" + proxy.getCountry() + "]" + " Ip[" + proxy.getIp() + "]");
                 progressBar.increment();
             });
         }
