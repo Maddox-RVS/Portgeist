@@ -21,14 +21,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.text.StyledEditorKit.BoldAction;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class Main {
     public static void writeProxyJson(List<ProxyData> proxies) {
-        //TODO: Fix saving logic
-
         Scanner in = new Scanner(System.in);
 
         File saveDirectory = new File("");
@@ -38,26 +37,31 @@ public class Main {
             String input = in.nextLine();
 
             if (input.equalsIgnoreCase("c")) {
+                JFrame chooserFrame = new JFrame();
+                chooserFrame.setAlwaysOnTop(true);
+                chooserFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                chooserFrame.setUndecorated(true);
+                chooserFrame.setLocationRelativeTo(null);
+                chooserFrame.setVisible(true);
+
                 JFileChooser fileChooser = new JFileChooser();
                 fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-                int returnValue = fileChooser.showOpenDialog(null);
+                int returnValue = fileChooser.showOpenDialog(chooserFrame);
                 if (returnValue == JFileChooser.APPROVE_OPTION)
                     saveDirectory = fileChooser.getSelectedFile();
+                chooserFrame.dispose();
             } else {
                 saveDirectory = new File(input);
             }
 
-            if (!saveDirectory.exists() && !saveDirectory.isDirectory())
-                validSaveDirectory = false;
-
-            if (!validSaveDirectory)
-                System.out.println("Directory entered is not a valid path!");
-
-            saveDirectory = new File(input);
+            validSaveDirectory = saveDirectory.exists() && saveDirectory.isDirectory();
+            if (!validSaveDirectory) System.out.println("Directory entered is not a valid path!");
         }
 
         System.out.print(Colors.BRIGHT_BLACK + "Enter file name (without extension): " + Colors.RESET);
         String fileName = in.nextLine();
+
+        in.close();
 
         File saveFile = new File(saveDirectory, fileName + ".json");
 
