@@ -27,56 +27,6 @@ import javax.swing.text.StyledEditorKit.BoldAction;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class Main {
-    public static void writeProxyJson(List<ProxyData> proxies) {
-        Scanner in = new Scanner(System.in);
-
-        File saveDirectory = new File("");
-        Boolean validSaveDirectory = false;
-        while (!validSaveDirectory) {
-            System.out.print(Colors.BRIGHT_BLACK + "Enter save directory or (c) to open a file chooser: " + Colors.RESET);
-            String input = in.nextLine();
-
-            if (input.equalsIgnoreCase("c")) {
-                JFrame chooserFrame = new JFrame();
-                chooserFrame.setAlwaysOnTop(true);
-                chooserFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                chooserFrame.setUndecorated(true);
-                chooserFrame.setLocationRelativeTo(null);
-                chooserFrame.setVisible(true);
-
-                JFileChooser fileChooser = new JFileChooser();
-                fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-                int returnValue = fileChooser.showOpenDialog(chooserFrame);
-                if (returnValue == JFileChooser.APPROVE_OPTION)
-                    saveDirectory = fileChooser.getSelectedFile();
-                chooserFrame.dispose();
-            } else {
-                saveDirectory = new File(input);
-            }
-
-            validSaveDirectory = saveDirectory.exists() && saveDirectory.isDirectory();
-            if (!validSaveDirectory) System.out.println("Directory entered is not a valid path!");
-        }
-
-        System.out.print(Colors.BRIGHT_BLACK + "Enter file name (without extension): " + Colors.RESET);
-        String fileName = in.nextLine();
-
-        in.close();
-
-        File saveFile = new File(saveDirectory, fileName + ".json");
-
-        Spinner spinner = new Spinner("Saving proxies to JSON");
-        spinner.start();
-
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            mapper.writerWithDefaultPrettyPrinter().writeValue(saveFile, proxies);
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            spinner.stop();
-        }
-    }
 
     public static void main(String[] args) throws Exception {
         Logger.getLogger("").setLevel(Level.SEVERE);
@@ -86,9 +36,17 @@ public class Main {
         //     5000, 
         //     NetworkScanner.Protocol.TCP);
 
-        List<ProxyData> proxyList = ProxyScraper.scrapeProxies();
-        List<ProxyData> filteredProxies = proxyList.size() > 0 ? ProxyFilter.filterProxies(proxyList) : new ArrayList<>();
+        // List<ProxyData> proxyList = ProxyScraper.scrapeProxies();
+        // List<ProxyData> filteredProxies = proxyList.size() > 0 ? ProxyFilter.filterProxies(proxyList) : new ArrayList<>();
+        // System.out.println("Found " + filteredProxies.size() + " working proxies.");
+        // NetworkScanner.writeProxyJson(filteredProxies);
+
+        List<ProxyData> loadedProxies = NetworkScanner.loadProxyJson(new File("C:\\Users\\rynvn\\Downloads\\jj.json"));
+        System.out.println("Loaded " + loadedProxies.size() + " proxies from file.");
+        List<ProxyData> filteredProxies = ProxyFilter.filterProxies(loadedProxies);
         System.out.println("Found " + filteredProxies.size() + " working proxies.");
-        writeProxyJson(filteredProxies);
+        for (ProxyData proxy : filteredProxies) {
+            System.out.println(proxy);
+        }
     }
 }
