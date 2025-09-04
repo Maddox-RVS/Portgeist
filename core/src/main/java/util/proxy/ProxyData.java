@@ -52,9 +52,10 @@ public class ProxyData {
     @Override
     public String toString() {
         return "ProxyData{" +
-                "ip='" + ip + '\'' +
-                ", port=" + port +
-                ", country='" + country + '\'' +
-                '}';
+            "ip='" + ip + '\'' +
+            ", port=" + port +
+            ", country='" + country + '\'' +
+            ", anonymity=" + anonymity +
+            '}';
     }
 }
