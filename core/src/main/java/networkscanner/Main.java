@@ -41,7 +41,7 @@ public class Main {
         // System.out.println("Found " + filteredProxies.size() + " working proxies.");
         // NetworkScanner.writeProxyJson(filteredProxies);
 
-        List<ProxyData> loadedProxies = NetworkScanner.loadProxyJson(new File("C:\\Users\\rynvn\\Downloads\\jj.json"));
+        List<ProxyData> loadedProxies = ProxyData.loadProxyJson(new File("C:\\Users\\rynvn\\Downloads\\jj.json"));
         System.out.println("Loaded " + loadedProxies.size() + " proxies from file.");
         List<ProxyData> filteredProxies = ProxyFilter.filterProxies(loadedProxies);
         System.out.println("Found " + filteredProxies.size() + " working proxies.");
