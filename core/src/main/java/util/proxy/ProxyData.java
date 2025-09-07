@@ -92,6 +92,33 @@ public class ProxyData {
 
         return proxies;
     }
+
+    public static boolean isIpv4(String address) {
+        String ipv4Pattern = 
+            "^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$";
+        return address.matches(ipv4Pattern);
+    }
+
+    public static boolean isIpv6(String address) {
+        String ipv6Pattern = 
+            "^(?:[a-fA-F0-9]{1,4}:){7}[a-fA-F0-9]{1,4}$" + // Full form
+            "|^(?:[a-fA-F0-9]{1,4}:){1,7}:$" +               // :: substitution at the end
+            "|^:(?::[a-fA-F0-9]{1,4}){1,7}$" +               // :: substitution at the start
+            "|^(?:[a-fA-F0-9]{1,4}:){1,6}:[a-fA-F0-9]{1,4}$" + // :: substitution in the middle
+            "|^(?:[a-fA-F0-9]{1,4}:){1,5}(?::[a-fA-F0-9]{1,4}){1,2}$" +
+            "|^(?:[a-fA-F0-9]{1,4}:){1,4}(?::[a-fA-F0-9]{1,4}){1,3}$" +
+            "|^(?:[a-fA-F0-9]{1,4}:){1,3}(?::[a-fA-F0-9]{1,4}){1,4}$" +
+            "|^(?:[a-fA-F0-9]{1,4}:){1,2}(?::[a-fA-F0-9]{1,4}){1,5}$" +
+            "|^[a-fA-F0-9]{1,4}:(?::[a-fA-F0-9]{1,4}){1,6}$" +
+            "|^:(?::[a-fA-F0-9]{1,4}){1,7}|:$";               // :: alone
+        return address.matches(ipv6Pattern);
+    }
+
+    public static boolean isDomainName(String address) {
+        boolean isIpv4 = isIpv4(address);
+        boolean isIpv6 = isIpv6(address);
+        return !isIpv4 && !isIpv6;
+    }
     
     public enum Anonymity {
         TRANSPARENT,

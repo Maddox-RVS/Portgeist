@@ -12,6 +12,7 @@ import util.proxy.ProxyData.Anonymity;
 import util.proxy.proxyscraper.ProxyScraper;
 
 import java.io.File;
+import java.lang.reflect.Proxy;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -52,6 +53,20 @@ public class Main {
         // System.out.println("Found " + filteredProxies.size() + " working proxies.");
         // for (ProxyData proxy : filteredProxies) {
         //     System.out.println(proxy);
+        // }
+
+        // List<ProxyData> proxyList = ProxyScraper.scrapeProxies();
+        // List<ProxyData> filteredProxies = proxyList.size() > 0 ? ProxyFilter.filterProxies(proxyList) : new ArrayList<>();
+        // System.out.println("Found " + filteredProxies.size() + " working proxies.");
+        // for (ProxyData proxy : filteredProxies) {
+        //     System.out.println(proxy);
+        //     ProxyChain chain = new ProxyChain(List.of(proxy));
+            
+        //     try {
+        //         chain.chainProxies("scanme.nmap.org", 80);
+        //     } catch (Exception e) {
+        //         System.out.println(Colors.RED + "Failed to connect through proxy chain: " + e.getMessage() + Colors.RESET);
+        //     }
         // }
     }
 }
