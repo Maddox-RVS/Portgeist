@@ -72,23 +72,22 @@ public class ProxyChain {
         headSocket.setSoTimeout(30000);
         headSocket.connect(new InetSocketAddress(proxies.get(0).getIp(), proxies.get(0).getPort()), 30000);
         
-        //TODO: Impliment a real fallback system instead of just trying both protocols every time
+        boolean socks5Support = true;
 
         try {
             byte responseCode = Socks5.sendManualSocksHandshake(headSocket, target, port);
             Socks5.handleSocksResponse(responseCode);
-            System.out.println("Connected to target through Socks5 proxy chain.");
         } catch (IOException e) {
-            // e.printStackTrace();
+            socks5Support = false;
         }
 
-        try {
-            byte responseCode = Socks4.sendManualSocksHandshake(headSocket, target, port);
-            Socks4.handleSocksResponse(responseCode);
-            System.out.println("Connected to target through Socks4 proxy chain.");
-        } catch (IOException e) {
-            // e.printStackTrace();
+        if (!socks5Support) {
+            try {
+                byte responseCode = Socks4.sendManualSocksHandshake(headSocket, target, port);
+                Socks4.handleSocksResponse(responseCode);
+            } catch (IOException e) {
+                throw new IOException("Failed to connect to target through proxy chain using both Socks5 and Socks4 protocols.");
+            }
         }
-
     }
 }

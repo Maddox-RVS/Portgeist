@@ -3,8 +3,6 @@ package util.proxy;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.reflect.Proxy;
-import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
@@ -95,8 +93,6 @@ public class Socks5 {
     }
 
     public static byte[] constructManualSocksConnectionRequest(String target, int port) throws UnknownHostException {
-        //TODO: Handle domain names and IPv6 addresses
-        
         byte portNumHigh = (byte) ((port >> 8) & 0xFF);
         byte portNumLow = (byte) (port & 0xFF);
 
@@ -131,7 +127,19 @@ public class Socks5 {
 
             return connectionRequest;
         } else {
-            //TODO: Impliment domain name handling
+            byte[] domainName = target.getBytes();
+
+            byte[] connectionRequest = new byte[7 + domainName.length];
+            connectionRequest[0] = SOCKS_VERSION_5;
+            connectionRequest[1] = ESTABLISH_TCP_CONNECTION;
+            connectionRequest[2] = RESERVED;
+            connectionRequest[3] = ADDRESS_TYPE_DOMAIN_NAME;
+            connectionRequest[4] = (byte) domainName.length;
+            System.arraycopy(domainName, 0, connectionRequest, 5, domainName.length);
+            connectionRequest[5 + domainName.length] = portNumHigh;
+            connectionRequest[6 + domainName.length] = portNumLow;
+
+            return connectionRequest;
         }
     }
 }
